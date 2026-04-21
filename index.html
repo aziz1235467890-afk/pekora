@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>Pekora Game</title>
+<style>
+body {
+    background: #111;
+    color: white;
+    font-family: Arial;
+    text-align: center;
+}
+button {
+    padding: 10px;
+    margin: 5px;
+    font-size: 16px;
+}
+</style>
+</head>
+<body>
+
+<h1>🎮 Pekora Game</h1>
+<p id="info"></p>
+
+<input type="number" id="guess" placeholder="اكتب رقم">
+<br><br>
+<button onclick="play()">خمن</button>
+<button onclick="buyHint()">شراء تلميح (5💰)</button>
+
+<script>
+let level = 1;
+let coins = 0;
+let hints = 0;
+let number = Math.floor(Math.random() * 5) + 1;
+
+function update() {
+    document.getElementById("info").innerText =
+    "Level: " + level + " | Coins: " + coins + " | Hints: " + hints;
+}
+
+function play() {
+    let guess = document.getElementById("guess").value;
+
+    if (guess == number) {
+        alert("🔥 صح!");
+        coins++;
+
+        if (coins % 5 === 0) {
+            hints++;
+            alert("🎁 حصلت تلميح!");
+        }
+
+        level++;
+        number = Math.floor(Math.random() * (level * 5)) + 1;
+    } else {
+        alert("❌ خطأ! الرقم كان " + number);
+    }
+
+    update();
+}
+
+function buyHint() {
+    if (coins >= 5) {
+        coins -= 5;
+        hints++;
+        alert("✔️ اشتريت تلميح");
+    } else {
+        alert("❌ ما عندك فلوس");
+    }
+}
+
+update();
+</script>
+
+</body>
+</html>
