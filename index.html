@@ -4,13 +4,16 @@
 <meta charset="UTF-8">
 <title>Pekora</title>
 
+<link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
+
 <style>
+
 body{
   margin:0;
-  font-family: Arial;
-  color:white;
+  font-family:'MedievalSharp', cursive;
   text-align:center;
-  background:#0e0e10;
+  color:white;
+  background: radial-gradient(circle at top, #2b0a3d, #0f3d2e);
   overflow:hidden;
 }
 
@@ -23,25 +26,33 @@ body{
   z-index:-1;
 }
 
+@keyframes popIn{
+  0%{transform:scale(0.7);opacity:0;}
+  80%{transform:scale(1.05);opacity:1;}
+  100%{transform:scale(1);}
+}
+
 h1{
-  margin-top:40px;
-  font-size:42px;
+  margin-top:30px;
+  font-size:44px;
   color:#9146ff;
-  text-shadow:0 0 12px #9146ff;
+  text-shadow:0 0 10px #9146ff,0 0 25px #00ff88;
+  animation:popIn 0.6s ease-out;
 }
 
 .box{
   background:#18181b;
   width:340px;
   margin:auto;
-  margin-top:40px;
-  padding:25px;
+  margin-top:30px;
+  padding:20px;
   border-radius:12px;
   border:1px solid #2a2a2d;
+  animation:popIn 0.4s ease-out;
 }
 
 input{
-  padding:12px;
+  padding:10px;
   width:85%;
   border-radius:8px;
   border:none;
@@ -56,14 +67,12 @@ button{
   margin:6px;
   border:none;
   border-radius:8px;
-  font-weight:bold;
   cursor:pointer;
+  font-weight:bold;
   transition:0.2s;
 }
 
-button:hover{
-  transform:scale(1.05);
-}
+button:active{transform:scale(0.9);}
 
 .green{background:#00ff88;color:black;}
 .purple{background:#9146ff;color:white;}
@@ -72,15 +81,14 @@ button:hover{
 footer{
   position:fixed;
   bottom:0;
-  left:0;
   width:100%;
-  background:#0e0e10;
-  color:#aaa;
   text-align:center;
-  padding:8px;
   font-size:12px;
-  border-top:1px solid #2a2a2d;
+  color:#aaa;
+  background:#0e0e10;
+  padding:8px;
 }
+
 </style>
 </head>
 
@@ -91,61 +99,151 @@ footer{
 <h1>🎮 Pekora</h1>
 
 <div class="box">
-  <p>🎯 خمن الرقم بين 1 و 10</p>
+
+  <p>🏆 Level: <span id="level">1</span></p>
+  <p>💰 Coins: <span id="coins">0</span></p>
+  <p>🔥 Streak: <span id="streak">0</span></p>
 
   <input type="number" id="guess">
 
   <br>
 
-  <button class="green" onclick="check(); playClick()">خمن</button>
-  <button class="purple" onclick="hint(); playClick()">💡 تلميح</button>
-  <button class="blue" onclick="shop(); playClick()">🛒 المتجر</button>
+  <button class="green" onclick="check(); play('win')">خمن</button>
+  <button class="purple" onclick="hint(); play('click')">💡 تلميح</button>
+  <button class="blue" onclick="shop(); play('click')">🛒 المتجر</button>
 
   <p id="msg"></p>
+
+  <button onclick="daily()">🎁 مكافأة يومية</button>
+
 </div>
 
 <footer>
-© 2026 Pekora Game - صنع بواسطة aziz/sptmbr
+©️ 2026 Pekora Game - aziz/sptmbr
 </footer>
 
-<!-- الصوت -->
+<!-- 🔊 أصوات -->
+<audio id="winSound">
+  <source src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3">
+</audio>
+
 <audio id="clickSound">
-  <source src="https://www.soundjay.com/buttons/sounds/button-16.mp3" type="audio/mpeg">
+  <source src="https://www.soundjay.com/buttons/sounds/button-16.mp3">
 </audio>
 
 <script>
+
 let num = rand();
 
+/* 💾 تحميل بيانات */
+let coins = localStorage.getItem("coins") || 0;
+let level = localStorage.getItem("level") || 1;
+let streak = localStorage.getItem("streak") || 0;
+
+coins = parseInt(coins);
+level = parseInt(level);
+streak = parseInt(streak);
+
+updateUI();
+
+/* 🎯 رقم */
 function rand(){
   return Math.floor(Math.random()*10)+1;
 }
 
+/* 🎮 لعب */
 function check(){
   let g = document.getElementById("guess").value;
 
   if(g == num){
-    document.getElementById("msg").innerText = "🔥 صح!";
+
+    streak++;
+
+    let reward = 1 + Math.floor(level/3);
+    coins += reward;
+
+    if(streak % 3 === 0){
+      level++;
+    }
+
+    document.getElementById("msg").innerText =
+    "🔥 صح! +" + reward + " عملات";
+
+    play('win');
+
     num = rand();
-  }else{
+
+  } else {
+    streak = 0;
     document.getElementById("msg").innerText = "❌ خطأ";
   }
+
+  save();
+  updateUI();
 }
 
+/* 💡 تلميح */
 function hint(){
-  document.getElementById("msg").innerText =
-  "💡 الرقم قريب من " + num;
+  if(coins >= 3){
+    coins -= 3;
+    document.getElementById("msg").innerText =
+    "💡 قريب من " + num;
+  } else {
+    document.getElementById("msg").innerText =
+    "❌ تحتاج 3 عملات";
+  }
+
+  save();
+  updateUI();
 }
 
+/* 🛒 متجر */
 function shop(){
   window.open("shop.html","_blank");
 }
 
-/* صوت */
-function playClick(){
-  document.getElementById("clickSound").play();
+/* 🎁 يومي */
+function daily(){
+  let last = localStorage.getItem("daily");
+
+  let today = new Date().toDateString();
+
+  if(last != today){
+    coins += 5;
+    localStorage.setItem("daily", today);
+    alert("🎁 حصلت 5 عملات!");
+  } else {
+    alert("رجعت اليوم قبل كذا");
+  }
+
+  save();
+  updateUI();
 }
 
-/* نجوم */
+/* 🔊 أصوات */
+function play(type){
+  if(type === "win"){
+    document.getElementById("winSound").play();
+  } else {
+    document.getElementById("clickSound").play();
+  }
+}
+
+/* 💾 حفظ */
+function save(){
+  localStorage.setItem("coins", coins);
+  localStorage.setItem("level", level);
+  localStorage.setItem("streak", streak);
+}
+
+/* 📊 UI */
+function updateUI(){
+  document.getElementById("coins").innerText = coins;
+  document.getElementById("level").innerText = level;
+  document.getElementById("streak").innerText = streak;
+}
+
+/* 🌌 نجوم */
 const canvas = document.getElementById("stars");
 const ctx = canvas.getContext("2d");
 
@@ -154,12 +252,12 @@ canvas.height = window.innerHeight;
 
 let stars = [];
 
-for(let i=0;i<150;i++){
+for(let i=0;i<120;i++){
   stars.push({
     x: Math.random()*canvas.width,
     y: Math.random()*canvas.height,
     r: Math.random()*2,
-    speed: Math.random()*1+0.3
+    speed: Math.random()*1+0.2
   });
 }
 
@@ -184,6 +282,7 @@ function draw(){
 }
 
 draw();
+
 </script>
 
 </body>
