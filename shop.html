@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>Pekora Shop</title>
+
+<!-- 🏰 خط Medieval -->
+<link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
+
+<style>
+
+/* 🌌 خلفية */
+body{
+  margin:0;
+  font-family:'MedievalSharp', cursive;
+  color:white;
+  text-align:center;
+  background: radial-gradient(circle at top, #2b0a3d, #0f3d2e);
+  overflow:hidden;
+}
+
+/* 🌠 النجوم */
+#stars{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  z-index:-1;
+}
+
+/* 💥 Pop عند الدخول */
+@keyframes popIn{
+  0%{ transform:scale(0.7); opacity:0; }
+  80%{ transform:scale(1.05); opacity:1; }
+  100%{ transform:scale(1); }
+}
+
+/* 🧱 صندوق */
+.box{
+  background:#18181b;
+  width:340px;
+  margin:auto;
+  margin-top:60px;
+  padding:20px;
+  border-radius:12px;
+  border:1px solid #2a2a2d;
+  animation: popIn 0.4s ease-out;
+}
+
+/* 🧾 العناصر */
+.item{
+  background:#111;
+  padding:12px;
+  margin:10px;
+  border-radius:10px;
+  cursor:pointer;
+  border:2px solid transparent;
+  transition:0.2s;
+  animation: popIn 0.5s ease;
+}
+
+.item:hover{
+  transform:scale(1.05);
+}
+
+/* 🟢 اختيار */
+.selected{
+  border:2px solid #00ff88;
+  box-shadow:0 0 10px #00ff88;
+}
+
+/* 🔘 زر */
+button{
+  padding:10px 14px;
+  margin-top:10px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:bold;
+  transition:0.2s;
+}
+
+button:active{
+  transform:scale(0.9);
+}
+
+.buy{
+  background:#9146ff;
+  color:white;
+}
+
+/* 🏰 عنوان */
+h1{
+  animation: popIn 0.6s ease-out;
+}
+
+/* 📌 حقوق */
+footer{
+  position:fixed;
+  bottom:0;
+  width:100%;
+  text-align:center;
+  font-size:12px;
+  color:#aaa;
+  background:#0e0e10;
+  padding:8px;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- 🌠 نجوم -->
+<canvas id="stars"></canvas>
+
+<h1>🛒 Pekora Shop</h1>
+
+<div class="box">
+
+  <div class="item" onclick="selectItem(this,'💡 تلميح')">
+    💡 تلميح = 3 عملات
+  </div>
+
+  <div class="item" onclick="selectItem(this,'❤️ حياة')">
+    ❤️ حياة إضافية = 5 عملات
+  </div>
+
+  <div class="item" onclick="selectItem(this,'🎯 تقليل صعوبة')">
+    🎯 تقليل صعوبة = 7 عملات
+  </div>
+
+  <p id="selectedText">لم يتم الاختيار</p>
+
+  <button class="buy" onclick="buy()">شراء</button>
+
+  <br><br>
+  <a href="index.html">🔙 الرجوع للعبة</a>
+
+</div>
+
+<footer>
+© 2026 Pekora Game - aziz/sptmbr
+</footer>
+
+<!-- 🔊 صوت -->
+<audio id="buySound">
+  <source src="https://www.soundjay.com/buttons/sounds/button-09.mp3">
+</audio>
+
+<script>
+
+let selected = null;
+
+/* اختيار */
+function selectItem(el, name){
+
+  document.querySelectorAll('.item').forEach(i=>{
+    i.classList.remove('selected');
+  });
+
+  el.classList.add('selected');
+
+  // 💥 pop effect
+  el.style.transform = "scale(1.1)";
+  setTimeout(()=> el.style.transform = "scale(1)",150);
+
+  selected = name;
+
+  document.getElementById("selectedText").innerText =
+  "🟢 اخترت: " + name;
+}
+
+/* شراء */
+function buy(){
+  if(!selected){
+    alert("اختر عنصر أول");
+    return;
+  }
+
+  document.getElementById("buySound").play();
+  alert("تم شراء: " + selected);
+}
+
+/* 🌠 نجوم */
+const canvas = document.getElementById("stars");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let stars = [];
+
+for(let i=0;i<120;i++){
+  stars.push({
+    x: Math.random()*canvas.width,
+    y: Math.random()*canvas.height,
+    r: Math.random()*2,
+    speed: Math.random()*1+0.2
+  });
+}
+
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle="white";
+
+  for(let s of stars){
+    ctx.beginPath();
+    ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fill();
+
+    s.y += s.speed;
+
+    if(s.y > canvas.height){
+      s.y = 0;
+      s.x = Math.random()*canvas.width;
+    }
+  }
+
+  requestAnimationFrame(draw);
+}
+
+draw();
+
+</script>
+
+</body>
+</html>
