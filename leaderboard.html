@@ -2,20 +2,26 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>Pekora Game</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Leaderboard - Pekora</title>
 
 <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
 
 <style>
+
 body{
   margin:0;
   font-family:'MedievalSharp', cursive;
   text-align:center;
   color:white;
   background: radial-gradient(circle at top, #2b0a3d, #0f3d2e);
-  overflow:hidden;
+
+  overflow-x:hidden;
+  overflow-y:auto;
 }
 
+/* 🌌 نجوم */
 #stars{
   position:fixed;
   top:0;
@@ -25,62 +31,58 @@ body{
   z-index:-1;
 }
 
-@keyframes pop{
-  0%{transform:scale(0.7);opacity:0;}
-  80%{transform:scale(1.05);opacity:1;}
-  100%{transform:scale(1);}
-}
-
-h1{
-  margin-top:30px;
-  color:#9146ff;
-  text-shadow:0 0 10px #9146ff,0 0 20px #00ff88;
-  animation:pop 0.6s ease;
-}
-
+/* 🧱 صندوق */
 .box{
   background:#18181b;
-  width:340px;
+  width:360px;
   margin:auto;
-  margin-top:20px;
+  margin-top:30px;
   padding:20px;
   border-radius:12px;
   border:1px solid #2a2a2d;
   animation:pop 0.4s ease;
 }
 
-input{
-  padding:10px;
-  width:85%;
-  border-radius:8px;
-  border:none;
-  margin-top:10px;
+/* 📱 موبايل */
+@media (max-width:600px){
+  .box{
+    width:92%;
+    padding:15px;
+  }
+}
+
+/* 💥 pop */
+@keyframes pop{
+  0%{transform:scale(0.8);opacity:0;}
+  100%{transform:scale(1);opacity:1;}
+}
+
+h1{
+  margin-top:25px;
+  color:#9146ff;
+  text-shadow:0 0 10px #9146ff;
+}
+
+.entry{
   background:#0e0e10;
-  color:white;
+  margin:8px 0;
+  padding:10px;
+  border-radius:8px;
+  display:flex;
+  justify-content:space-between;
 }
 
 button{
-  padding:10px 14px;
-  margin:6px;
+  padding:10px;
+  margin-top:10px;
   border:none;
   border-radius:8px;
   cursor:pointer;
   font-weight:bold;
-  transition:0.2s;
+  width:100%;
 }
 
-button:active{transform:scale(0.9);}
-
-.green{background:#00ff88;color:black;}
-.purple{background:#9146ff;color:white;}
 .blue{background:#2d8cff;color:white;}
-
-.shop{
-  margin-top:10px;
-  padding:10px;
-  background:#111;
-  border-radius:10px;
-}
 
 footer{
   position:fixed;
@@ -91,111 +93,62 @@ footer{
   background:#0e0e10;
   padding:8px;
 }
+
 </style>
 </head>
 
 <body>
 
+<!-- 🌌 نجوم -->
 <canvas id="stars"></canvas>
 
-<h1>🎮 Pekora</h1>
+<h1>🏆 Leaderboard</h1>
 
 <div class="box">
 
-  <p>🎯 خمن رقم من 1 إلى 10</p>
+  <h3>🔥 Top Players</h3>
+  <div id="board"></div>
 
-  <p>💰 العملات: <span id="coinsText">0</span></p>
-
-  <input type="number" id="guess">
-
-  <br>
-
-  <button class="green" onclick="check()">خمن</button>
-  <button class="purple" onclick="hint()">💡 تلميح (-3)</button>
-
-  <p id="msg"></p>
-
-  <hr>
-
-  <h3>🛒 المتجر</h3>
-
-  <div class="shop">
-    <button onclick="buy(3)">💡 تلميح إضافي (3)</button>
-    <button onclick="buy(5)">❤️ حياة (5)</button>
-  </div>
+  <a href="index.html">
+    <button class="blue">⬅ رجوع للعبة</button>
+  </a>
 
 </div>
 
 <footer>
-©️ 2026 Pekora - aziz/sptmbr
+©️ 2026 Pekora Leaderboard - aziz/sptmbr
 </footer>
 
 <script>
 
-/* 💾 تحميل العملات */
-let coins = parseInt(localStorage.getItem("coins")) || 0;
+/* 🏆 جلب البيانات */
+let board = JSON.parse(localStorage.getItem("leaderboard")) || [];
 
-let num = rand();
-updateUI();
+/* ترتيب */
+board.sort((a,b)=> b.coins - a.coins);
 
-/* 🎯 رقم */
-function rand(){
-  return Math.floor(Math.random()*10)+1;
-}
+/* عرض */
+function render(){
 
-/* 🎮 لعب */
-function check(){
-  let g = document.getElementById("guess").value;
+  let html = "";
 
-  if(g == num){
-    coins += 1;
-    document.getElementById("msg").innerText = "🔥 صح +1 عملة";
-    num = rand();
-  } else {
-    document.getElementById("msg").innerText = "❌ خطأ";
+  if(board.length === 0){
+    html = "<p>لا يوجد لاعبين بعد</p>";
   }
 
-  save();
-  updateUI();
+  board.slice(0,10).forEach((p,i)=>{
+    html += `
+      <div class="entry">
+        <span>${i+1}. ${p.name}</span>
+        <span>💰 ${p.coins}</span>
+      </div>
+    `;
+  });
+
+  document.getElementById("board").innerHTML = html;
 }
 
-/* 💡 تلميح */
-function hint(){
-  if(coins >= 3){
-    coins -= 3;
-    document.getElementById("msg").innerText =
-    "💡 قريب من " + num;
-  } else {
-    document.getElementById("msg").innerText =
-    "❌ تحتاج 3 عملات";
-  }
-
-  save();
-  updateUI();
-}
-
-/* 🛒 شراء */
-function buy(cost){
-  if(coins >= cost){
-    coins -= cost;
-    alert("تم الشراء!");
-  } else {
-    alert("❌ ما عندك عملات كفاية");
-  }
-
-  save();
-  updateUI();
-}
-
-/* 💾 حفظ */
-function save(){
-  localStorage.setItem("coins", coins);
-}
-
-/* 📊 تحديث */
-function updateUI(){
-  document.getElementById("coinsText").innerText = coins;
-}
+render();
 
 /* 🌌 نجوم */
 const canvas = document.getElementById("stars");
@@ -206,7 +159,7 @@ canvas.height = window.innerHeight;
 
 let stars = [];
 
-for(let i=0;i<120;i++){
+for(let i=0;i<100;i++){
   stars.push({
     x: Math.random()*canvas.width,
     y: Math.random()*canvas.height,
