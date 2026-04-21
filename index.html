@@ -83,9 +83,7 @@ button{
   border-radius:10px;
 }
 
-a{
-  text-decoration:none;
-}
+a{text-decoration:none;}
 
 footer{
   position:fixed;
@@ -102,7 +100,6 @@ footer{
 
 <body>
 
-<!-- 🌌 النجوم -->
 <canvas id="stars"></canvas>
 
 <h1>🎮 Pekora Game</h1>
@@ -113,8 +110,7 @@ footer{
   <p>🏆 Level: <span id="level"></span></p>
   <p>💰 Coins: <span id="coins"></span></p>
 
-  <!-- 🎯 نطاق -->
-  <p id="range">🎯 خمن الرقم من 1 - 10</p>
+  <p id="range">🎯 الصعوبة</p>
 
   <input type="number" id="guess">
 
@@ -125,7 +121,10 @@ footer{
 
   <p id="msg"></p>
 
-  <!-- 🔗 تنقل -->
+  <!-- ⚙️ الصعوبة -->
+  <button class="purple" onclick="changeDifficulty()">⚙️ تغيير الصعوبة</button>
+
+  <!-- 🔗 التنقل -->
   <div class="section">
 
     <button class="blue" onclick="window.location.href='shop.html'">
@@ -152,7 +151,7 @@ footer{
 
 <script>
 
-/* 👤 اسم اللاعب */
+/* 👤 اسم */
 let playerName = localStorage.getItem("name") || prompt("اكتب اسمك:");
 localStorage.setItem("name", playerName);
 document.getElementById("name").innerText = playerName;
@@ -161,20 +160,34 @@ document.getElementById("name").innerText = playerName;
 let coins = parseInt(localStorage.getItem("coins")) || 0;
 let level = parseInt(localStorage.getItem("level")) || 1;
 
+let difficulty = "easy";
+
 let num = rand();
 
 updateUI();
 
-/* 🎯 صعوبة */
+/* 🎯 الصعوبة */
 function getMax(){
-  if(level <= 3) return 10;
-  if(level <= 6) return 20;
-  return 50;
+  if(difficulty === "easy") return 5;
+  if(difficulty === "normal") return 10;
+  if(difficulty === "hard") return 30;
+  if(difficulty === "impossible") return 70;
+}
+
+function changeDifficulty(){
+
+  if(difficulty === "easy") difficulty = "normal";
+  else if(difficulty === "normal") difficulty = "hard";
+  else if(difficulty === "hard") difficulty = "impossible";
+  else difficulty = "easy";
+
+  updateRange();
+  alert("🎯 الصعوبة: " + difficulty);
 }
 
 function updateRange(){
   document.getElementById("range").innerText =
-  "🎯 خمن الرقم من 1 - " + getMax();
+  "🎯 من 1 - " + getMax() + " (" + difficulty + ")";
 }
 
 function rand(){
