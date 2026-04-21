@@ -2,6 +2,10 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
+
+<!-- 📱 مهم للجوال -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Pekora Game</title>
 
 <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
@@ -15,6 +19,7 @@ body{
   color:white;
   background: radial-gradient(circle at top, #2b0a3d, #0f3d2e);
   overflow:hidden;
+  -webkit-text-size-adjust: 100%;
 }
 
 /* 🌌 نجوم */
@@ -95,11 +100,36 @@ footer{
   padding:8px;
 }
 
+/* 📱 موبايل */
+@media (max-width: 600px){
+
+  .box{
+    width:90%;
+    margin-top:15px;
+    padding:15px;
+  }
+
+  h1{
+    font-size:32px;
+  }
+
+  input{
+    width:90%;
+    font-size:16px;
+  }
+
+  button{
+    width:90%;
+    font-size:16px;
+  }
+}
+
 </style>
 </head>
 
 <body>
 
+<!-- 🌌 نجوم -->
 <canvas id="stars"></canvas>
 
 <h1>🎮 Pekora Game</h1>
@@ -121,10 +151,10 @@ footer{
 
   <p id="msg"></p>
 
-  <!-- ⚙️ الصعوبة -->
+  <!-- ⚙️ صعوبة -->
   <button class="purple" onclick="changeDifficulty()">⚙️ تغيير الصعوبة</button>
 
-  <!-- 🔗 التنقل -->
+  <!-- 🔗 تنقل -->
   <div class="section">
 
     <button class="blue" onclick="window.location.href='shop.html'">
@@ -161,12 +191,11 @@ let coins = parseInt(localStorage.getItem("coins")) || 0;
 let level = parseInt(localStorage.getItem("level")) || 1;
 
 let difficulty = "easy";
-
 let num = rand();
 
 updateUI();
 
-/* 🎯 الصعوبة */
+/* 🎯 صعوبة */
 function getMax(){
   if(difficulty === "easy") return 5;
   if(difficulty === "normal") return 10;
@@ -182,7 +211,7 @@ function changeDifficulty(){
   else difficulty = "easy";
 
   updateRange();
-  alert("🎯 الصعوبة: " + difficulty);
+  alert("🎯 " + difficulty);
 }
 
 function updateRange(){
